@@ -2,10 +2,12 @@ import os
 import json
 import logging
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import boto3
 from botocore.exceptions import ClientError
 from serpapi import GoogleSearch
 
+CORS(app)
 app = Flask(__name__)
 
 logging.basicConfig(level=logging.DEBUG)

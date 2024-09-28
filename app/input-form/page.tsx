@@ -52,24 +52,39 @@ export default function ProductInputForm() {
   }
 
   const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    if (!validateForm()) return
+    e.preventDefault();
+    if (!validateForm()) return;
 
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      // Simulating API call
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      setResults([
-        { name: "Product 1", price: 999, fitScore: 0.95, pros: ["Great battery", "High performance"], cons: ["Expensive"] },
-        { name: "Product 2", price: 799, fitScore: 0.85, pros: ["Good value", "Nice screen"], cons: ["Average camera"] },
-      ])
+        // Send form data to the Flask backend
+        const response = await fetch('http://localhost:8080/api/product-recommendations', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                searchQuery: productType,  // Product type acts as the search query
+                preferences: {
+                    budget,                // Pass the budget range
+                    features: selectedFeatures  // Pass the selected features
+                }
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch product recommendations');
+        }
+
+        const data = await response.json();
+        setResults(data.products);  // Update the results from the backend
     } catch (error) {
-      console.error('Error submitting form:', error)
-      setErrors({ submit: 'Failed to fetch products. Please try again.' })
+        console.error('Error submitting form:', error);
+        setErrors({ submit: 'Failed to fetch products. Please try again.' });
     } finally {
-      setIsLoading(false)
+        setIsLoading(false);
     }
-  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 p-4">
