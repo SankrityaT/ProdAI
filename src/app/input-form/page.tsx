@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, FormEvent, useEffect } from 'react'
+import { useState, FormEvent} from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -193,7 +193,7 @@ export default function ProductInputForm() {
                         />
                       </div>
                       {errors.productType && (
-                        <p id="productType-error" className="text-xs text-red-500 mt-1 body-text">{errors.productType}</p>
+                       <p id="productType-error" className="text-xs text-red-500 mt-1 body-text">{errors.productType.replace(/'/g, '&apos;')}</p>
                       )}
                     </div>
 
@@ -335,7 +335,7 @@ export default function ProductInputForm() {
         <span className="text-sm text-gray-600">{product.rating} ({product.reviews} reviews)</span>
       </div>
       <a
-        href={product.product_link || product.link}
+        href={product.link}
         target="_blank"
         rel="noopener noreferrer"
         className="text-blue-600 hover:text-blue-800 transition-colors duration-300 flex items-center"
