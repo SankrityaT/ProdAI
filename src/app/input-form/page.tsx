@@ -29,16 +29,10 @@ interface Product {
   isBestMatch: boolean;
 }
 
-interface Feature {
-  id: string;
-  label: string;
-  icon: string;
-  description: string;
-}
 
 export default function ProductInputForm() {
   const [productType, setProductType] = useState('')
-  const [selectedFeatures, setSelectedFeatures] = useState<string[]>([])
+
   const [budget, setBudget] = useState<[string | number, string | number]>(['', '']);
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
   const [isLoading, setIsLoading] = useState(false)
@@ -47,17 +41,6 @@ export default function ProductInputForm() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-
-  useEffect(() => {
-    // Reset selected features when product type changes
-    setSelectedFeatures([])
-  }, [productType])
-
-  const handleFeatureChange = (featureId: string, checked: boolean) => {
-    setSelectedFeatures(prev =>
-      checked ? [...prev, featureId] : prev.filter(id => id !== featureId)
-    )
-  }
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {}
