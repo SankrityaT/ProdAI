@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Search, BarChart3, Zap, Filter, BookmarkPlus, Sparkles, Facebook, Twitter, Instagram } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 

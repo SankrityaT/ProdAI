@@ -1,6 +1,3 @@
-NextAuth.js
-
-
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 
@@ -12,7 +9,7 @@ export const authOptions = {
     }),
   ],
   pages: {
-    signIn: '/signin', // The custom sign-in page URL
+    signIn: '/signin', 
   },
 };
 

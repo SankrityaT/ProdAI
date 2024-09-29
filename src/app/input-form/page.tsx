@@ -6,16 +6,16 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Checkbox } from "@/components/ui/checkbox"
+
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+
 import { Progress } from "@/components/ui/progress"
 import { Loader2, Search, Info, Star, User, ShoppingCart, Heart, Bell, Sparkles, ExternalLink } from "lucide-react"
 import Link from 'next/link'
-import * as Slider from '@radix-ui/react-slider'
+
 
 interface Product {
   name: string;
@@ -39,7 +39,7 @@ interface Feature {
 export default function ProductInputForm() {
   const [productType, setProductType] = useState('')
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([])
-  const [budget, setBudget] = useState([500, 1500])
+  const [budget, setBudget] = useState<[string | number, string | number]>(['', '']);
   const [errors, setErrors] = useState<{ [key: string]: string }>({})
   const [isLoading, setIsLoading] = useState(false)
   const [results, setResults] = useState<Product[]>([])
@@ -171,8 +171,6 @@ export default function ProductInputForm() {
         </div>
       </nav>
 
-
-
       {/* Main Content */}
       <div className="flex-grow flex items-center justify-center p-4">
         <motion.div
@@ -216,37 +214,39 @@ export default function ProductInputForm() {
                       )}
                     </div>
 
-{/* Budget Range Input */}
-<div className="space-y-4">
-  <Label htmlFor="budget" className="text-lg font-medium text-gray-700 label">
-    Budget Range:
-  </Label>
-  <div className="flex items-center space-x-2">
-    <input
-      type="number"
-      id="budget-min"
-      className="w-full text-base rounded-full border border-gray-300 bg-white/90 p-3 transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent body-text h-12"
-      value={budget[0] !== null ? budget[0] : ''}
-      onChange={(e) => {
-        const value = e.target.value;
-        setBudget([Math.min(Number(value) || 0, budget[1]), budget[1]]);
-      }}
-      placeholder="Min"
-    />
-    <span className="text-gray-600">-</span>
-    <input
-      type="number"
-      id="budget-max"
-      className="w-full text-base rounded-full border border-gray-300 bg-white/90 p-3 transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent body-text h-12"
-      value={budget[1] !== null ? budget[1] : ''}
-      onChange={(e) => {
-        const value = e.target.value;
-        setBudget([budget[0], Math.max(Number(value) || 0, budget[0])]);
-      }}
-      placeholder="Max"
-    />
-  </div>
+                    <Label htmlFor="budget" className="text-lg font-medium text-gray-700 label">
+  Budget Range:
+</Label>
+<div className="flex items-center space-x-2">
+  <input
+    type="number"
+    id="budget-min"
+    className="w-full text-base rounded-full border border-gray-300 bg-transparent p-3 transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent body-text h-12 placeholder-gray-500 shadow-sm"
+    value={budget[0] !== '' ? String(budget[0]) : ''}  // Ensure value is a string
+    onChange={(e) => {
+      const value = e.target.value;
+      setBudget([value === '' ? '' : Math.max(1, Math.min(Number(value), 999999)), budget[1]]);
+    }}
+    placeholder="Min"
+    min="1"
+    max="999999"
+  />
+  <span className="text-gray-600">-</span>
+  <input
+    type="number"
+    id="budget-max"
+    className="w-full text-base rounded-full border border-gray-300 bg-transparent p-3 transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent body-text h-12 placeholder-gray-500 shadow-sm"
+    value={budget[1] !== '' ? String(budget[1]) : ''}  // Ensure value is a string
+    onChange={(e) => {
+      const value = e.target.value;
+      setBudget([budget[0], value === '' ? '' : Math.max(1, Math.min(Number(value), 999999))]);
+    }}
+    placeholder="Max"
+    min="1"
+    max="999999"
+  />
 </div>
+
 
 
                     {/* Key Features Selection */}
