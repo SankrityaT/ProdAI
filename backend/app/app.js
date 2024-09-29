@@ -107,64 +107,10 @@ async function generateFitScoreAndProsCons(product, userPreferences) {
         }
     } else {
         return { score: 0, explanation: 'Error generating fit score', pros: [], cons: [] };
-    }
+    }    
 }
 
-app.post('/api/product-recommendations', async (req, res) => {
-    try {
-        const { searchQuery, preferences, page = 1, pageSize = 5 } = req.body;
-        console.log('Received request data:', { searchQuery, preferences, page, pageSize });
-
-        if (!searchQuery || !preferences || !preferences.budget || preferences.budget.length !== 2) {
-            return res.status(400).json({ error: 'Invalid request data' });
-        }
-
-        // Get all products within the budget range
-        const allProducts = await searchProducts(searchQuery, preferences.budget);
-        console.log(`Received ${allProducts.length} products from searchProducts`);
-
-        if (!allProducts.length) {
-            return res.status(404).json({ error: `No products found matching: ${searchQuery}` });
-        }
-
-        // Process all products with AI
-        const processedResults = await Promise.all(allProducts.map(async (product) => {
-            const analysisData = await generateFitScoreAndProsCons(product, preferences);
-            return {
-                ...product,
-                fitScore: analysisData.score / 10,
-                scoreExplanation: analysisData.explanation || 'N/A',
-                pros: analysisData.pros || [],
-                cons: analysisData.cons || [],
-            };
-        }));
-
-        // Sort by fit score
-        processedResults.sort((a, b) => b.fitScore - a.fitScore);
-
-        // Apply pagination
-        const startIndex = (page - 1) * pageSize;
-        const endIndex = startIndex + pageSize;
-        const paginatedResults = processedResults.slice(startIndex, endIndex);
-
-        // Mark top 3 as best match
-        paginatedResults.slice(0, 3).forEach(product => product.isBestMatch = true);
-
-        console.log(`Sending ${paginatedResults.length} results for page ${page}`);
-        return res.json({ 
-            products: paginatedResults,
-            totalProducts: processedResults.length,
-            currentPage: page,
-            totalPages: Math.ceil(processedResults.length / pageSize),
-        });
-    } catch (error) {
-        console.error('Error processing product recommendations request:', error);
-        return res.status(500).json({ error: 'An unexpected error occurred', details: error.toString() });
-    }
-});
-
-
-function searchProducts(query, budget, numResults = 5) {
+function searchProducts(query, budget, numResults = 5, maxPosition = 10) {
     const search = new GoogleSearch(SERPAPI_KEY);
 
     return new Promise((resolve, reject) => {
@@ -183,10 +129,17 @@ function searchProducts(query, budget, numResults = 5) {
                 reject('No shopping results found.');
             } else {
                 const products = data.shopping_results
-                    .filter(item => {
+                    // Filter products based on their position and other constraints
+                    .filter((item, index) => {
                         const price = parseFloat(item.extracted_price);
-                        return !isNaN(price) && price >= budget[0] && price <= budget[1];
+                        return (
+                            !isNaN(price) && 
+                            price >= budget[0] && 
+                            price <= budget[1] && 
+                            item.position <= maxPosition // Limit to maxPosition
+                        );
                     })
+                    .slice(0, numResults) // Ensure the result list is limited to `numResults`
                     .map((item) => ({
                         name: item.title || 'N/A',
                         price: item.price || 'N/A',
@@ -194,18 +147,17 @@ function searchProducts(query, budget, numResults = 5) {
                         rating: item.rating || 'N/A',
                         reviews: item.reviews || 'N/A',
                         image: item.thumbnail || 'N/A',
-                        link: item.product_link || item.link || 'N/A',  // Ensure product_link is used if available
+                        link: item.product_link || item.link || 'N/A',  // Use `product_link` if available
                         description: item.snippet || 'N/A',
                         source: item.source || 'N/A',
-                        extensions: item.extensions || []
+                        extensions: item.extensions || [],
+                        position: item.position || 'N/A'  // Include the position for reference
                     }));
                 resolve(products);
             }
         });
     });
 }
-
-
 
 app.post('/api/product-recommendations', async (req, res) => {
     try {

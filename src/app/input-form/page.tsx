@@ -171,39 +171,7 @@ export default function ProductInputForm() {
         </div>
       </nav>
 
-      {/* Budget Range Filter */}
-      <div className="bg-white shadow-sm py-4">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center space-x-4">
-            <Label htmlFor="budget-filter" className="text-sm font-medium text-gray-700 whitespace-nowrap">
-              Budget Range:
-            </Label>
-            <div className="flex-grow">
-              <Slider.Root
-                className="relative flex items-center select-none touch-none w-full h-5"
-                value={budget}
-                onValueChange={setBudget}
-                max={2000}
-                step={50}
-                minStepsBetweenThumbs={1}
-              >
-                <Slider.Track className="bg-blue-200 relative grow rounded-full h-2">
-                  <Slider.Range className="absolute bg-blue-600 rounded-full h-full" />
-                </Slider.Track>
-                {budget.map((value, index) => (
-                  <Slider.Thumb
-                    key={index}
-                    className="block w-5 h-5 bg-white border-2 border-blue-600 rounded-full hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
-                  />
-                ))}
-              </Slider.Root>
-            </div>
-            <div className="text-sm text-gray-600 whitespace-nowrap min-w-[120px]">
-              ${budget[0]} - ${budget[1]}
-            </div>
-          </div>
-        </div>
-      </div>
+
 
       {/* Main Content */}
       <div className="flex-grow flex items-center justify-center p-4">
@@ -247,6 +215,39 @@ export default function ProductInputForm() {
                         <p id="productType-error" className="text-xs text-red-500 mt-1 body-text">{errors.productType}</p>
                       )}
                     </div>
+
+{/* Budget Range Input */}
+<div className="space-y-4">
+  <Label htmlFor="budget" className="text-lg font-medium text-gray-700 label">
+    Budget Range:
+  </Label>
+  <div className="flex items-center space-x-2">
+    <input
+      type="number"
+      id="budget-min"
+      className="w-full text-base rounded-full border border-gray-300 bg-white/90 p-3 transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent body-text h-12"
+      value={budget[0] !== null ? budget[0] : ''}
+      onChange={(e) => {
+        const value = e.target.value;
+        setBudget([Math.min(Number(value) || 0, budget[1]), budget[1]]);
+      }}
+      placeholder="Min"
+    />
+    <span className="text-gray-600">-</span>
+    <input
+      type="number"
+      id="budget-max"
+      className="w-full text-base rounded-full border border-gray-300 bg-white/90 p-3 transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent body-text h-12"
+      value={budget[1] !== null ? budget[1] : ''}
+      onChange={(e) => {
+        const value = e.target.value;
+        setBudget([budget[0], Math.max(Number(value) || 0, budget[0])]);
+      }}
+      placeholder="Max"
+    />
+  </div>
+</div>
+
 
                     {/* Key Features Selection */}
                     <div className="space-y-4">
