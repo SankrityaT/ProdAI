@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 "use client"
 
 import { useState, FormEvent} from 'react'
@@ -55,7 +57,7 @@ export default function ProductInputForm() {
     return Object.keys(newErrors).length === 0
   }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const handleSubmit = async (e: FormEvent, page: number = 1) => {
     e.preventDefault();
     if (!validateForm()) return;

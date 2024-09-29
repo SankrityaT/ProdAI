@@ -1,4 +1,7 @@
+// eslint-disable-next-line react/no-unescaped-entities
+
 "use client";
+
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -73,7 +76,7 @@ export default function LandingPage() {
             <h2 className="text-5xl font-bold text-center mb-16 text-white">How Prodigi Transforms Your Shopping</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
               {[
-                // eslint-disable-next-line react/no-unescaped-entities
+              
                 { icon: Search, title: "Effortless Input", description: "Simply tell us what you're looking for, and let our AI do the heavy lifting." },
                 { icon: BarChart3, title: "Personalized Scores", description: "Get tailored 'Fit Scores' that match products to your unique needs." },
                 { icon: Zap, title: "Informed Decisions", description: "Make confident choices with our detailed pros and cons summaries." }
