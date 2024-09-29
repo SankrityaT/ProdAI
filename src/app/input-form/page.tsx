@@ -42,6 +42,7 @@ export default function ProductInputForm() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {}
     if (!productType.trim()) {
@@ -54,6 +55,7 @@ export default function ProductInputForm() {
     return Object.keys(newErrors).length === 0
   }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleSubmit = async (e: FormEvent, page: number = 1) => {
     e.preventDefault();
     if (!validateForm()) return;
