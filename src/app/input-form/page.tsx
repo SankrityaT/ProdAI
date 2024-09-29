@@ -64,7 +64,7 @@ export default function ProductInputForm() {
 
     setIsLoading(true);
     try {
-      const response = await fetch('https://ec2-3-144-111-130.us-east-2.compute.amazonaws.com:8080/api/product-recommendations', {
+      const response = await fetch('https://ec2-3-144-111-130.us-east-2.compute.amazonaws.com/api/product-recommendations', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -209,7 +209,7 @@ export default function ProductInputForm() {
     type="number"
     id="budget-min"
     className="w-full text-base rounded-full border border-gray-300 bg-transparent p-3 transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent body-text h-12 placeholder-gray-500 shadow-sm"
-    value={budget[0] !== '' ? String(budget[0]) : ''}  // Ensure value is a string
+    value={budget[0] !== '' ? String(budget[0]) : ''}  
     onChange={(e) => {
       const value = e.target.value;
       setBudget([value === '' ? '' : Math.max(1, Math.min(Number(value), 999999)), budget[1]]);
@@ -223,7 +223,7 @@ export default function ProductInputForm() {
     type="number"
     id="budget-max"
     className="w-full text-base rounded-full border border-gray-300 bg-transparent p-3 transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent body-text h-12 placeholder-gray-500 shadow-sm"
-    value={budget[1] !== '' ? String(budget[1]) : ''}  // Ensure value is a string
+    value={budget[1] !== '' ? String(budget[1]) : ''}  
     onChange={(e) => {
       const value = e.target.value;
       setBudget([budget[0], value === '' ? '' : Math.max(1, Math.min(Number(value), 999999))]);
