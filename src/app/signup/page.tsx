@@ -29,6 +29,34 @@ export default function SignUpPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log('Form submitted:', formData);
+<<<<<<< HEAD
+=======
+
+    // Send data to API to store it in DynamoDB
+    try {
+      const response = await fetch('/api/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      if (response.ok) {
+        console.log('User data saved successfully');
+      } else {
+        console.error('Failed to save user data');
+      }
+    } catch (error) {
+      console.error('An error occurred:', error);
+    }
+
+    // Sign in the user after the form submission
+>>>>>>> 8b2c89653414a1024644a9e6f317059060ff6982
     await signIn('credentials', {
       email: formData.email,
       password: formData.password,
