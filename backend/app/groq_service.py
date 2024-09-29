@@ -2,7 +2,7 @@ import requests
 
 # Replace this with your actual API key
 GROQ_API_KEY = "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"
-GROQ_API_URL = "https://api.groq.com/v1/analyze"  # Example endpoint, replace with actual Groq API endpoint
+GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"  # Example endpoint, replace with actual Groq API endpoint
 
 def analyze_product(product_details: str, user_preferences: str):
     """

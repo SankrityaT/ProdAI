@@ -1,139 +1,213 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Search, ThumbsUp, BarChart3 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { ArrowRight, Search, BarChart3, Zap, Filter, BookmarkPlus, Sparkles, Facebook, Twitter, Instagram } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 export default function LandingPage() {
-  const scrollToSearch = () => {
-    const searchForm = document.getElementById('product-search-form');
-    if (searchForm) {
-      searchForm.scrollIntoView({ behavior: 'smooth' });
-    }
+  const fadeInUp = {
+    initial: { opacity: 0, y: 60 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.6 }
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-white text-gray-800 font-sans">
-      <header className="bg-[#004080] text-white p-4">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-blue-400 via-blue-500 to-blue-600 text-white font-sans" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"' }}>
+      <header className="bg-blue-700 shadow-md py-4 px-6">
         <nav className="container mx-auto flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold">Prodigi</Link>
-          <Button variant="ghost" className="text-white hover:text-[#00A8E8]">About</Button>
+          <Link href="/" className="text-2xl font-bold text-white flex items-center">
+            <Sparkles className="h-8 w-8 mr-2" />
+            Prodigi
+          </Link>
+          <div className="space-x-4">
+            <Button variant="ghost" className="text-white hover:text-blue-200 transition-colors">About</Button>
+            <Link href="/signup">
+  <Button 
+    variant="outline" 
+    className="bg-white text-blue-700 border-white hover:bg-blue-100 hover:text-blue-800 transition-colors"
+  >
+    Sign In
+  </Button>
+</Link>
+
+          </div>
         </nav>
       </header>
 
       <main className="flex-grow">
         {/* Hero Section */}
-        <section className="relative bg-[#004080] text-white py-20 px-4">
-          <div className="container mx-auto text-center relative z-10">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Your AI Product Research Assistant</h1>
-            <p className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto">
-              Get personalized product recommendations, detailed reviews, and quick pros and cons to make shopping easy.
+        <section className="relative py-32 px-6 overflow-hidden">
+          <motion.div 
+            initial="initial"
+            animate="animate"
+            variants={fadeInUp}
+            className="container mx-auto text-center relative z-10"
+          >
+            <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight text-white">Your AI Product Research Assistant</h1>
+            <p className="text-xl md:text-2xl mb-10 max-w-2xl mx-auto text-blue-100 font-medium">
+              Join 10,000+ smart shoppers in finding your perfect product, effortlessly.
             </p>
-            <Button 
-              onClick={scrollToSearch}
-              className="bg-[#00A8E8] hover:bg-[#0086BA] text-white font-bold py-3 px-8 rounded-lg text-lg transition-colors duration-300"
-            >
-              Start Your Search Now
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </div>
-          <div className="absolute inset-0 bg-black opacity-50"></div>
-          <Image
-            src="/image.png?height=400&width=800"
-            alt="AI Assistant and Products"
-            layout="fill"
-            objectFit="cover"
-            className="absolute inset-0"
-            priority
-          />
+            <Link href="/input-form">
+              <Button 
+                size="lg" 
+                className="bg-white text-blue-600 hover:bg-blue-50 font-bold py-8 px-12 rounded-full text-2xl transition-all duration-300 shadow-lg hover:shadow-xl w-full sm:w-auto"
+              >
+                Start Your Smart Search Now
+                <ArrowRight className="ml-2 h-6 w-6" />
+              </Button>
+            </Link>
+          </motion.div>
         </section>
 
         {/* How It Works Section */}
-        <section className="py-16 px-4 bg-gray-50">
-          <div className="container mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-12">How It Works</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <section className="py-32 px-6">
+          <motion.div 
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            variants={fadeInUp}
+            className="container mx-auto"
+          >
+            <h2 className="text-5xl font-bold text-center mb-16 text-white">How Prodigi Transforms Your Shopping</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
               {[
-                { icon: Search, title: "Input Your Needs", description: "Specify your product criteria and preferences." },
-                { icon: BarChart3, title: "Get Personalized Scores", description: "Receive contextual 'Fit Scores' based on your input." },
-                { icon: ThumbsUp, title: "Compare Products", description: "Review pros and cons summaries for informed decisions." }
+                { icon: Search, title: "Effortless Input", description: "Simply tell us what you're looking for, and let our AI do the heavy lifting." },
+                { icon: BarChart3, title: "Personalized Scores", description: "Get tailored 'Fit Scores' that match products to your unique needs." },
+                { icon: Zap, title: "Informed Decisions", description: "Make confident choices with our detailed pros and cons summaries." }
               ].map((step, index) => (
-                <div key={index} className="text-center">
-                  <div className="bg-white rounded-full p-4 inline-block mb-4">
-                    <step.icon className="h-12 w-12 text-[#004080]" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
-                  <p className="text-gray-600">{step.description}</p>
-                </div>
+                <motion.div 
+                  key={index}
+                  initial="initial"
+                  whileInView="animate"
+                  viewport={{ once: true }}
+                  variants={fadeInUp}
+                  transition={{ delay: index * 0.2 }}
+                >
+                  <Card className="text-center h-full flex flex-col justify-between shadow-lg hover:shadow-xl transition-all duration-300 bg-blue-700 border-none">
+                    <CardContent className="pt-6">
+                      <div className="bg-blue-600 rounded-full p-6 inline-block mb-6">
+                        <step.icon className="h-12 w-12 text-white" />
+                      </div>
+                      <h3 className="text-2xl font-semibold mb-4 text-white">{step.title}</h3>
+                      <p className="text-blue-100">{step.description}</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               ))}
             </div>
-          </div>
+          </motion.div>
         </section>
 
         {/* Key Features Section */}
-        <section className="py-16 px-4">
-          <div className="container mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-12">Key Features</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <section className="py-32 px-6">
+          <motion.div 
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            variants={fadeInUp}
+            className="container mx-auto"
+          >
+            <h2 className="text-5xl font-bold text-center mb-16 text-white">Discover the Prodigi Advantage</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
               {[
-                { title: "Contextual Fit Score", description: "Get personalized product ratings based on your specific needs." },
-                { title: "Detailed Pros and Cons", description: "Understand the strengths and weaknesses of each product at a glance." },
-                { title: "Smart Product Comparisons", description: "Easily compare multiple products side by side." },
-                { title: "Real-time Updates", description: "Access the latest product information and user reviews." },
-                { title: "Customizable Filters", description: "Refine your search with advanced filtering options." },
-                { title: "Save and Share", description: "Bookmark your favorite products and share them with friends." }
+                { icon: BarChart3, title: "Smart Fit Score", description: "Our AI analyzes thousands of data points to find your perfect match." },
+                { icon: Zap, title: "Pros & Cons at a Glance", description: "Save time with instant insights into each product's strengths and weaknesses." },
+                { icon: Search, title: "Effortless Comparisons", description: "Compare multiple products side-by-side with ease." },
+                { icon: Zap, title: "Real-time Market Insights", description: "Stay ahead with up-to-the-minute product information and user feedback." },
+                { icon: Filter, title: "Precision Filtering", description: "Narrow down options quickly with our advanced, intuitive filters." },
+                { icon: BookmarkPlus, title: "Smart Lists", description: "Save and share your top picks with friends and family." }
               ].map((feature, index) => (
-                <div key={index} className="flex items-start">
-                  <div className="bg-[#004080] rounded-full p-2 mr-4">
-                    <Search className="h-6 w-6 text-white" />
+                <motion.div 
+                  key={index}
+                  initial="initial"
+                  whileInView="animate"
+                  viewport={{ once: true }}
+                  variants={fadeInUp}
+                  transition={{ delay: index * 0.1 }}
+                  className="flex items-start hover:bg-blue-600 p-4 rounded-lg transition-colors duration-300"
+                >
+                  <div className="bg-blue-700 rounded-full p-4 mr-5">
+                    <feature.icon className="h-8 w-8 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                    <p className="text-gray-600">{feature.description}</p>
+                    <h3 className="text-xl font-semibold mb-3 text-white">{feature.title}</h3>
+                    <p className="text-blue-100">{feature.description}</p>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
-          </div>
+          </motion.div>
         </section>
 
-        {/* CTA Section */}
-        <section className="bg-[#00A8E8] py-16 px-4 text-white text-center">
-          <div className="container mx-auto">
-            <h2 className="text-3xl font-bold mb-4">Ready to find your perfect product?</h2>
-            <div className="flex justify-center space-x-4">
-            <Link href="/input-form">
-  <Button className="bg-white text-[#004080] hover:bg-gray-100 font-bold py-3 px-8 rounded-lg text-lg transition-colors duration-300">
-    Input Form
-    <ArrowRight className="ml-2 h-5 w-5" />
-  </Button>
-</Link>
-<Link href="/result">
-  <Button className="bg-white text-[#004080] hover:bg-gray-100 font-bold py-3 px-8 rounded-lg text-lg transition-colors duration-300">
-    View Results
-    <ArrowRight className="ml-2 h-5 w-5" />
-  </Button>
-</Link>
-
+        {/* About Section */}
+        <section className="py-32 px-6">
+          <motion.div 
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            variants={fadeInUp}
+            className="container mx-auto"
+          >
+            <h2 className="text-5xl font-bold text-center mb-16 text-white">About Prodigi</h2>
+            <div className="max-w-3xl mx-auto text-center">
+              <p className="text-xl mb-8 text-blue-100">
+                Prodigi was born from a simple idea: make online shopping smarter and more personalized. Our founder, a tech enthusiast and avid online shopper, was frustrated with the overwhelming number of options and lack of personalized recommendations in e-commerce.
+              </p>
+              <p className="text-xl mb-8 text-blue-100">
+                Leveraging the power of artificial intelligence and machine learning, we developed Prodigi to revolutionize the way people shop online. Our AI-driven platform analyzes vast amounts of product data, user preferences, and market trends to provide tailored product recommendations.
+              </p>
+              <p className="text-xl text-blue-100">
+                Today, Prodigi is helping thousands of shoppers find their perfect products with ease, saving time and reducing the stress of online shopping. We're constantly innovating and improving our AI to bring you the most accurate and helpful product recommendations possible.
+              </p>
             </div>
-          </div>
-        </section>
-
-        {/* Product Search Form Placeholder */}
-        <section id="product-search-form" className="py-16 px-4">
-          <div className="container mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-4">Product Search</h2>
-            <p className="text-xl text-gray-600 mb-8">
-              This is where the product search form will be implemented.
-            </p>
-          </div>
+          </motion.div>
         </section>
       </main>
 
-      <footer className="bg-[#004080] text-white py-8 px-4">
-        <div className="container mx-auto text-center">
-          <p>&copy; {new Date().getFullYear()} Prodigi. All rights reserved.</p>
+      <footer className="bg-blue-700 text-white py-16 px-6">
+        <div className="container mx-auto flex flex-col md:flex-row justify-between items-start">
+          <div className="mb-8 md:mb-0">
+            <Link href="/" className="text-3xl font-bold flex items-center mb-4">
+              <Sparkles className="h-10 w-10 mr-2" />
+              Prodigi
+            </Link>
+            <p className="text-lg text-blue-200 max-w-xs">Your AI-powered shopping companion, revolutionizing the way you discover perfect products.</p>
+          </div>
+          <div className="grid grid-cols-2 gap-8 md:gap-16">
+            <div>
+              <h3 className="text-xl font-semibold mb-4">Company</h3>
+              <ul className="space-y-2">
+                <li><Link href="#" className="text-blue-200 hover:text-white transition-colors">About Us</Link></li>
+                <li><Link href="#" className="text-blue-200 hover:text-white transition-colors">Careers</Link></li>
+                <li><Link href="#" className="text-blue-200 hover:text-white transition-colors">Contact</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold mb-4">Legal</h3>
+              <ul className="space-y-2">
+                <li><Link href="#" className="text-blue-200 hover:text-white transition-colors">Terms of Service</Link></li>
+                <li><Link href="#" className="text-blue-200 hover:text-white transition-colors">Privacy Policy</Link></li>
+                <li><Link href="#" className="text-blue-200 hover:text-white transition-colors">Cookie Policy</Link></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div className="container mx-auto mt-12 pt-8 border-t border-blue-600 flex flex-col md:flex-row justify-between items-center">
+          <p className="text-blue-200 text-sm">&copy; {new Date().getFullYear()} Prodigi. All rights reserved.</p>
+          <div className="flex space-x-6 mt-4 md:mt-0">
+            <Link href="#" className="text-blue-200 hover:text-white transition-colors">
+              <Facebook className="h-6 w-6" />
+            </Link>
+            <Link href="#" className="text-blue-200 hover:text-white transition-colors">
+              <Twitter className="h-6 w-6" />
+            </Link>
+            <Link href="#" className="text-blue-200 hover:text-white transition-colors">
+              <Instagram className="h-6 w-6" />
+            </Link>
+          </div>
         </div>
       </footer>
     </div>

@@ -1,194 +1,433 @@
-"use client";
+"use client"
 
-import { useState, FormEvent } from 'react';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Loader2 } from "lucide-react";
+import { useState, FormEvent, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Progress } from "@/components/ui/progress"
+import { Loader2, Search, Info, Star, User, ShoppingCart, Heart, Bell, Sparkles, ExternalLink } from "lucide-react"
+import Link from 'next/link'
+import * as Slider from '@radix-ui/react-slider'
 
-const features = [
-  { id: 'battery', label: 'Battery Life' },
-  { id: 'screen', label: 'Screen Quality' },
-  { id: 'storage', label: 'Storage' },
-  { id: 'camera', label: 'Camera' },
-  { id: 'performance', label: 'Performance' },
-];
+interface Product {
+  name: string;
+  price: string;
+  fitScore: number;
+  pros: string[];
+  cons: string[];
+  rating: string;
+  reviews: string;
+  link: string;
+  isBestMatch: boolean;
+}
+
+interface Feature {
+  id: string;
+  label: string;
+  icon: string;
+  description: string;
+}
 
 export default function ProductInputForm() {
-  const [productType, setProductType] = useState('');
-  const [budget, setBudget] = useState([0, 2000]);
-  const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [results, setResults] = useState<any[]>([]); // State to store API results
+  const [productType, setProductType] = useState('')
+  const [selectedFeatures, setSelectedFeatures] = useState<string[]>([])
+  const [budget, setBudget] = useState([500, 1500])
+  const [errors, setErrors] = useState<{ [key: string]: string }>({})
+  const [isLoading, setIsLoading] = useState(false)
+  const [results, setResults] = useState<Product[]>([])
+  const [features, setFeatures] = useState<string>('')
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  useEffect(() => {
+    // Reset selected features when product type changes
+    setSelectedFeatures([])
+  }, [productType])
 
   const handleFeatureChange = (featureId: string, checked: boolean) => {
     setSelectedFeatures(prev =>
       checked ? [...prev, featureId] : prev.filter(id => id !== featureId)
-    );
-  };
+    )
+  }
 
   const validateForm = () => {
-    const newErrors: { [key: string]: string } = {};
+    const newErrors: { [key: string]: string } = {}
     if (!productType.trim()) {
-      newErrors.productType = 'Please specify a product type';
+      newErrors.productType = 'Please specify a product type'
     }
-    if (selectedFeatures.length === 0) {
-      newErrors.features = 'Please select at least one feature';
+    if (!features.trim()) {
+      newErrors.features = 'Please enter at least one feature'
     }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent, page: number = 1) => {
     e.preventDefault();
     if (!validateForm()) return;
-  
+
     setIsLoading(true);
     try {
-      // Replace with your Groq AI API endpoint
-      const response = await fetch('https://api.groq.com/v1/analyze', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer YOUR_GROQ_API_KEY`, // Use your Groq API key here
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          productType, 
-          budget, 
-          selectedFeatures 
-        }),
-      });
-  
-      const result = await response.json();
-  
-      if (response.ok && result.success) {
-        setResults(result.products); // Store the API response in results state
-      } else {
-        throw new Error(result.message || 'An error occurred while fetching products.');
-      }
+        const response = await fetch('http://localhost:8080/api/product-recommendations', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                searchQuery: productType,
+                preferences: {
+                    budget: budget,
+                    features: features.split(',').map(f => f.trim())
+                },
+                page: page,  // Pass the page number
+                pageSize: 5  // Limit to 5 products per page
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch product recommendations');
+        }
+
+        const data = await response.json();
+        setResults(data.products);
+        setCurrentPage(data.currentPage);
+        setTotalPages(data.totalPages);
     } catch (error) {
-      console.error('Error submitting form:', error);
-      setErrors({ submit: 'Failed to fetch products. Please try again.' });
+        console.error('Error submitting form:', error);
+        setErrors({ submit: 'Failed to fetch products. Please try again.' });
     } finally {
-      setIsLoading(false);
+        setIsLoading(false);
     }
-  };
-  
+};
+
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[#f5f5f5] text-gray-800">
-      <div className="max-w-lg w-full">
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-lg p-8 mb-8">
-          <h2 className="text-3xl font-bold mb-6 text-center text-[#004080]">Find Your Perfect Product</h2>
-          
-          <div className="mb-6">
-            <Label htmlFor="productType" className="block mb-2 text-sm font-medium text-gray-700">
-              Product Type
-            </Label>
-            <Input
-              id="productType"
-              type="text"
-              placeholder="e.g., laptop, smartphone"
-              value={productType}
-              onChange={(e) => setProductType(e.target.value)}
-              className={`w-full ${errors.productType ? 'border-red-500' : ''}`}
-              aria-invalid={errors.productType ? 'true' : 'false'}
-              aria-describedby={errors.productType ? 'productType-error' : undefined}
-            />
-            {errors.productType && (
-              <p id="productType-error" className="mt-1 text-xs text-red-500">
-                {errors.productType}
-              </p>
-            )}
-          </div>
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600">
+      <style jsx global>{`
+        @import url('https://fonts.cdnfonts.com/css/sf-pro-display');
 
-          <div className="mb-6">
-            <Label htmlFor="budget" className="block mb-2 text-sm font-medium text-gray-700">
-              Budget Range
-            </Label>
-            <Slider
-              id="budget"
-              min={0}
-              max={2000}
-              step={50}
-              value={budget}
-              onValueChange={setBudget}
-              className="mb-2"
-            />
-            <div className="flex justify-between text-sm text-gray-600">
-              <span>${budget[0]}</span>
-              <span>${budget[1]}</span>
+        body {
+          font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+          font-weight: 700;
+        }
+
+        .label {
+          font-weight: 500;
+        }
+
+        .body-text {
+          font-weight: 400;
+        }
+      `}</style>
+
+      {/* Navbar */}
+      <nav className="bg-white shadow-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16">
+            <div className="flex">
+              <div className="flex-shrink-0 flex items-center">
+                <Sparkles className="h-8 w-8 text-blue-600 mr-2" />
+                <Link href="/" className="text-2xl font-bold text-blue-600">Prodigi</Link>
+              </div>
+              <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+                <Link href="/" className="border-blue-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                  Home
+                </Link>
+                <Link href="/categories" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                  Categories
+                </Link>
+                <Link href="/deals" className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                  Deals
+                </Link>
+              </div>
+            </div>
+            <div className="hidden sm:ml-6 sm:flex sm:items-center sm:space-x-4">
+              <Button variant="ghost" size="icon">
+                <Bell className="h-5 w-5" />
+              </Button>
+              <Button variant="ghost" size="icon">
+                <Heart className="h-5 w-5" />
+              </Button>
+              <Button variant="ghost" size="icon">
+                <ShoppingCart className="h-5 w-5" />
+              </Button>
+              <Button variant="ghost" size="icon">
+                <User className="h-5 w-5" />
+              </Button>
             </div>
           </div>
+        </div>
+      </nav>
 
-          <div className="mb-6">
-            <Label className="block mb-2 text-sm font-medium text-gray-700">
-              Key Features
+      {/* Budget Range Filter */}
+      <div className="bg-white shadow-sm py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center space-x-4">
+            <Label htmlFor="budget-filter" className="text-sm font-medium text-gray-700 whitespace-nowrap">
+              Budget Range:
             </Label>
-            <div className="space-y-2">
-              {features.map((feature) => (
-                <div key={feature.id} className="flex items-center">
-                  <Checkbox
-                    id={feature.id}
-                    checked={selectedFeatures.includes(feature.id)}
-                    onCheckedChange={(checked) => handleFeatureChange(feature.id, checked as boolean)}
+            <div className="flex-grow">
+              <Slider.Root
+                className="relative flex items-center select-none touch-none w-full h-5"
+                value={budget}
+                onValueChange={setBudget}
+                max={2000}
+                step={50}
+                minStepsBetweenThumbs={1}
+              >
+                <Slider.Track className="bg-blue-200 relative grow rounded-full h-2">
+                  <Slider.Range className="absolute bg-blue-600 rounded-full h-full" />
+                </Slider.Track>
+                {budget.map((value, index) => (
+                  <Slider.Thumb
+                    key={index}
+                    className="block w-5 h-5 bg-white border-2 border-blue-600 rounded-full hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
                   />
-                  <Label
-                    htmlFor={feature.id}
-                    className="ml-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    {feature.label}
-                  </Label>
-                </div>
-              ))}
-            </div>
-            {errors.features && (
-              <p className="mt-1 text-xs text-red-500">{errors.features}</p>
-            )}
-          </div>
-
-          <Button
-            type="submit"
-            className="w-full bg-[#004080] hover:bg-[#0086BA] text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Searching...
-              </>
-            ) : (
-              'Search Products'
-            )}
-          </Button>
-
-          {errors.submit && (
-            <p className="mt-4 text-center text-red-500">{errors.submit}</p>
-          )}
-        </form>
-
-        {/* Render the results */}
-        <div className="results">
-          {results.length > 0 && (
-            <div className="bg-white rounded-lg shadow-lg p-8">
-              <h3 className="text-2xl font-bold mb-4">Results:</h3>
-              <ul className="space-y-4">
-                {results.map((product, index) => (
-                  <li key={index} className="border-b pb-4">
-                    <h4 className="text-lg font-semibold">{product.name}</h4>
-                    <p className="text-gray-600">Price: ${product.price}</p>
-                    <p className="text-gray-600">Fit Score: {product.fitScore}</p>
-                    <p className="text-gray-600">Pros: {product.pros.join(', ')}</p>
-                    <p className="text-gray-600">Cons: {product.cons.join(', ')}</p>
-                  </li>
                 ))}
-              </ul>
+              </Slider.Root>
             </div>
-          )}
+            <div className="text-sm text-gray-600 whitespace-nowrap min-w-[120px]">
+              ${budget[0]} - ${budget[1]}
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Main Content */}
+      <div className="flex-grow flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-4xl"
+        >
+          <Card className="backdrop-blur-md bg-white/90 shadow-xl border-0 rounded-3xl overflow-hidden transition-all duration-300 hover:shadow-2xl">
+            <CardHeader className="space-y-1 bg-gradient-to-r from-blue-600 to-blue-800 text-white p-8">
+              <CardTitle className="text-4xl font-bold text-center tracking-tight">Find Your Perfect Product</CardTitle>
+            </CardHeader>
+            <CardContent className="p-8">
+              <Tabs defaultValue="search" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-8 rounded-full bg-blue-100 p-1">
+                  <TabsTrigger value="search" className="rounded-full text-sm font-medium transition-all duration-300">Search</TabsTrigger>
+                  <TabsTrigger value="results" className="rounded-full text-sm font-medium transition-all duration-300">Results</TabsTrigger>
+                </TabsList>
+                <TabsContent value="search">
+                  <form onSubmit={(e) => handleSubmit(e, 1)} className="space-y-8">
+                    {/* Product Type Input */}
+                    <div className="space-y-4">
+                      <Label htmlFor="productType" className="text-lg font-medium text-gray-700 label">
+                        What are you looking for?
+                      </Label>
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                        <Input
+                          id="productType"
+                          type="text"
+                          placeholder="e.g., laptop, smartphone, headphones"
+                          value={productType}
+                          onChange={(e) => setProductType(e.target.value)}
+                          className={`pl-10 ${errors.productType ? 'border-red-500' : 'border-gray-300'} text-base rounded-full transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent body-text h-12`}
+                          aria-invalid={errors.productType ? 'true' : 'false'}
+                          aria-describedby={errors.productType ? 'productType-error' : undefined}
+                        />
+                      </div>
+                      {errors.productType && (
+                        <p id="productType-error" className="text-xs text-red-500 mt-1 body-text">{errors.productType}</p>
+                      )}
+                    </div>
+
+                    {/* Key Features Selection */}
+                    <div className="space-y-4">
+  <Label htmlFor="features" className="text-lg font-medium text-gray-700 label">
+    What features are important to you?
+  </Label>
+  <div className="relative">
+    <Input
+      id="features"
+      type="text"
+      placeholder="e.g., long battery life, high performance, large storage"
+      value={features}
+      onChange={(e) => setFeatures(e.target.value)}
+      className="text-base rounded-full transition-all duration-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent body-text h-12"
+    />
+  </div>
+  <p className="text-sm text-gray-500">Separate features with commas</p>
+  {errors.features && (
+    <p className="text-xs text-red-500 mt-1 body-text">{errors.features}</p>
+  )}
+</div>
+
+                    <Button
+                      type="submit"
+                      className="w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white font-semibold py-4 px-6 rounded-full transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 text-lg shadow-lg hover:shadow-xl"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+                          Searching...
+                        </>
+                      ) : (
+                        <>
+                          <Search className="mr-2 h-6 w-6" />
+                          Find My Perfect Product
+                        </>
+                      )}
+                    </Button>
+
+                    {errors.submit && (
+                      <p className="text-center text-red-500 mt-4 text-sm body-text">{errors.submit}</p>
+                    )}
+                  </form>
+                </TabsContent>
+
+<TabsContent value="results">
+  <AnimatePresence>
+    {results.length > 0 ? (
+      <>
+        <ul className="space-y-6">
+          {results.map((product, index) => (
+            <motion.li
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3, delay: index * 0.1 }}
+              className="bg-white rounded-2xl p-6 shadow-md border border-gray-200 transition-all duration-300 hover:shadow-lg hover:border-blue-300"
+            >
+              <div className="flex justify-between items-start">
+                <div>
+                  <h4 className="text-xl font-semibold text-gray-800 mb-2">{product.name}</h4>
+                  <p className="text-gray-600 text-sm mb-2">Price: {product.price}</p>
+                  <div className="flex items-center space-x-2 mb-4">
+                    <Progress value={product.fitScore * 100} className="w-32" />
+                    <span className="text-sm font-medium text-gray-700">
+                      Fit Score: {(product.fitScore * 100).toFixed(0)}%
+                    </span>
+                  </div>
+                </div>
+                {product.isBestMatch && (
+                  <Badge variant="secondary" className="text-sm px-3 py-1 rounded-full bg-blue-100 text-blue-800">
+                    Best Match
+                  </Badge>
+                )}
+              </div>
+              <div className="mt-4">
+                <h5 className="text-sm font-semibold text-gray-700 mb-2">Pros:</h5>
+                <div className="flex flex-wrap gap-2">
+                  {product.pros.map((pro, i) => (
+                    <Badge key={i} variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs px-2 py-1 rounded-full">
+                      {pro}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              <div className="mt-4">
+                <h5 className="text-sm font-semibold text-gray-700 mb-2">Cons:</h5>
+                <div className="flex flex-wrap gap-2">
+                  {product.cons.map((con, i) => (
+                    <Badge key={i} variant="outline" className="bg-red-50 text-red-700 border-red-200 text-xs px-2 py-1 rounded-full">
+                      {con}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="mt-4 flex items-center justify-between">
+      <div className="flex items-center">
+        <Star className="text-yellow-400 w-5 h-5 mr-1" />
+        <span className="text-sm text-gray-600">{product.rating} ({product.reviews} reviews)</span>
+      </div>
+      <a
+        href={product.product_link || product.link}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-blue-600 hover:text-blue-800 transition-colors duration-300 flex items-center"
+      >
+        View Product <ExternalLink className="ml-1 w-4 h-4" />
+      </a>
     </div>
-  );
+  </motion.li>
+))}
+        </ul>
+                        
+                        {/* Pagination controls */}
+                        <div className="mt-8 flex justify-center items-center space-x-4">
+  <Button
+    onClick={() => {
+      if (currentPage > 1) {
+        handleSubmit(new Event('submit') as any, currentPage - 1);
+      }
+    }}
+    disabled={currentPage === 1 || isLoading}
+    className="px-4 py-2 text-sm"
+  >
+    Previous
+  </Button>
+  <span className="text-sm text-gray-600">
+    Page {currentPage} of {totalPages}
+  </span>
+  <Button
+    onClick={() => {
+      if (currentPage < totalPages) {
+        handleSubmit(new Event('submit') as any, currentPage + 1);
+      }
+    }}
+    disabled={currentPage === totalPages || isLoading}
+    className="px-4 py-2 text-sm"
+  >
+    Next
+  </Button>
+</div>
+                      </>
+                    ) : (
+                      <div className="text-center text-gray-500 text-sm body-text">
+                        No results yet. Start your search to see products here.
+                      </div>
+                    )}
+                  </AnimatePresence>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+            <CardFooter className="flex justify-center bg-gray-50 p-6">
+              <HoverCard>
+                <HoverCardTrigger asChild>
+                  <Button variant="link" className="text-sm text-gray-600 hover:text-blue-600 transition-colors duration-300">
+                    <Info className="w-5 h-5 mr-2" />
+                    How it works
+                  </Button>
+                </HoverCardTrigger>
+                <HoverCardContent className="w-80">
+                  <div className="flex space-x-4">
+                    <Avatar>
+                      <AvatarImage src="/placeholder.svg?text=AI" />
+                      <AvatarFallback>AI</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <h3 className="font-semibold mb-2 text-sm">Product Search Assistant</h3>
+                      <p className="text-xs text-gray-500 body-text">
+                        Our AI-powered search analyzes your preferences to find the best products that match your needs and budget. We consider factors like product type, key features, and price range to provide personalized recommendations.
+                      </p>
+                    </div>
+                  </div>
+                </HoverCardContent>
+              </HoverCard>
+            </CardFooter>
+          </Card>
+        </motion.div>
+      </div>
+    </div>
+  )
 }
